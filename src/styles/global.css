@@ -1,0 +1,118 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+button { font: inherit; color: inherit; border: none; background: none; cursor: pointer; }
+input, select { font: inherit; color: inherit; }
+h1,h2,h3,h4,p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+::-webkit-scrollbar { width: 0; height: 0; }
+
+.app-shell {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* On a wide desktop screen, frame the app like a phone so layout is honest */
+@media (min-width: 900px) {
+  body { background: #06070A; }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(900px 500px at 15% -10%, rgba(212,255,63,.07), transparent 60%),
+      radial-gradient(700px 500px at 100% 100%, rgba(79,227,207,.06), transparent 60%);
+    pointer-events: none;
+  }
+  .app-shell {
+    margin: 24px auto;
+    min-height: calc(100vh - 48px);
+    height: calc(100vh - 48px);
+    border-radius: 34px;
+    border: 1px solid var(--hairline-str);
+    box-shadow: var(--sh-3);
+    overflow: hidden;
+  }
+}
+
+.scroll-area {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-b) + 24px);
+}
+
+/* ---------- shared primitives ---------- */
+
+.page-pad { padding: 0 var(--s5); }
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  font-weight: 700;
+}
+
+.h-display {
+  font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+}
+.h-section { font-size: 17px; font-weight: 700; letter-spacing: -0.015em; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 20px; border-radius: var(--r-pill);
+  font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+  transition: transform .12s ease, opacity .12s ease, background .15s ease;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn-primary { background: var(--volt); color: #0A0C11; box-shadow: var(--glow-volt); }
+.btn-ghost { background: var(--surface-2); color: var(--txt); border: 1px solid var(--hairline); }
+.btn-quiet { background: transparent; color: var(--txt-2); }
+.btn-block { width: 100%; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 700; letter-spacing: -0.01em;
+  background: var(--surface-2); color: var(--txt-2);
+  border: 1px solid var(--hairline);
+}
+
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+.fade-in { animation: fadeIn .32s ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to { opacity:1; transform:none; } }
+
+.pop-in { animation: popIn .3s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes popIn { from { opacity: 0; transform: scale(.94);} to { opacity:1; transform:none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}

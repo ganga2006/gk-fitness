@@ -1,0 +1,24 @@
+node_modules/
+dist/
+dist-apk/
+ios/
+*.local
+.DS_Store
+*.unsigned
+
+# the release signing key must never be published — keep it only on this PC (and a backup)
+android/signing/
+
+# local backups and large Blender working files stay on this PC
+backup/
+*.blend
+*.blend1
+*.fbx
+tools/model-blender/production/body.glb
+tools/model-blender/**/renders/
+
+# base64 copy of the model (only needed by the claude.ai preview host)
+public/model/body.glb.txt
+
+# Python caches from the APK builder
+__pycache__/
