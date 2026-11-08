@@ -6,10 +6,12 @@
  * if the device has no speech synthesis.
  */
 
+import { spokenNumber, t } from '../i18n';
+
 type SpeakOpts = { interrupt?: boolean; rate?: number };
 
 /** The Android app's bridge to the phone's own text-to-speech (Android WebView has no speechSynthesis). */
-type NativeTTS = { speak(text: string, queue: number): void; stop(): void; setRate(r: number): void; setPitch(p: number): void };
+type NativeTTS = { speak(text: string, queue: number): void; stop(): void; setRate(r: number): void; setPitch(p: number): void; setLang?(tag: string): void };
 const native = (): NativeTTS | null => (typeof window !== 'undefined' && (window as any).GKNative) || null;
 
 class Coach {
@@ -21,6 +23,8 @@ class Coach {
   rate = 1.0;
   pitch = 1.0;
   voiceURI: string | null = null;
+  /** 'te' speaks Telugu (te-IN voice), 'en' English */
+  lang: 'en' | 'te' = 'en';
 
   private ctx: AudioContext | null = null;
   private unlocked = false;
@@ -59,8 +63,24 @@ class Coach {
     }
   }
 
+  /** Is a voice for the current language installed? (always true on the Android app) */
+  hasLangVoice(): boolean {
+    if (native()) return true;
+    if (!this.voices.length) this.loadVoices();
+    return this.lang === 'te' ? this.voices.some((v) => /^te/i.test(v.lang)) : this.voices.some((v) => /^en/i.test(v.lang));
+  }
+
   private pickVoice(): SpeechSynthesisVoice | null {
     if (!this.voices.length) this.loadVoices();
+    if (this.lang === 'te') {
+      const te = this.voices.filter((v) => /^te/i.test(v.lang));
+      return (
+        te.find((v) => v.voiceURI === this.voiceURI) ??
+        te.find((v) => /natural|online|google/i.test(v.name)) ??
+        te[0] ??
+        null
+      );
+    }
     if (this.voiceURI) {
       const match = this.voices.find((v) => v.voiceURI === this.voiceURI);
       if (match) return match;
@@ -77,6 +97,7 @@ class Coach {
     const n = native();
     if (n) {
       try {
+        n.setLang?.(this.lang === 'te' ? 'te-IN' : 'en-IN');
         n.setRate(opts.rate ?? this.rate);
         n.setPitch(this.pitch);
         n.speak(text, opts.interrupt ? 0 : 1); // QUEUE_FLUSH : QUEUE_ADD
@@ -93,6 +114,7 @@ class Coach {
       u.rate = opts.rate ?? this.rate;
       u.pitch = this.pitch;
       const v = this.pickVoice();
+      u.lang = this.lang === 'te' ? 'te-IN' : 'en-US';
       if (v) { u.voice = v; u.lang = v.lang; }
       synth.speak(u);
     } catch { /* ignore */ }
@@ -112,7 +134,7 @@ class Coach {
 
   countdown(n: number) {
     if (!this.countdownEnabled) return;
-    this.speak(String(n), { interrupt: true, rate: Math.min(1.4, this.rate + 0.15) });
+    if (n > 0) this.speak(spokenNumber(n), { interrupt: true, rate: Math.min(1.4, this.rate + 0.15) });
     this.beep(n === 0 ? 880 : 660, n === 0 ? 0.18 : 0.08);
     this.buzz(n === 0 ? 90 : 25);
   }
@@ -124,18 +146,18 @@ class Coach {
 
   halfway() {
     if (!this.cuesEnabled) return;
-    this.speak('Halfway there');
+    this.speak(t('Halfway there'));
   }
 
   rest(seconds: number, next?: string) {
-    const nx = next ? ` Next up, ${next}.` : '';
-    this.speak(`Rest. ${seconds} seconds.${nx}`, { interrupt: true });
+    const nx = next ? ' ' + t('Next up, {name}.', { name: next }) : '';
+    this.speak(t('Rest. {n} seconds.', { n: seconds }) + nx, { interrupt: true });
     this.beep(440, 0.14);
   }
 
   finished(calories: number, minutes: number) {
     this.speak(
-      `Workout complete. ${minutes} minutes, about ${calories} calories burned. Great work.`,
+      t('Workout complete. {m} minutes, about {c} calories burned. Great work.', { m: minutes, c: calories }),
       { interrupt: true },
     );
     this.buzz([60, 60, 120]);

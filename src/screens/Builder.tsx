@@ -7,6 +7,7 @@ import type { PlanItem } from '../data/plans';
 import { estimateSession } from '../lib/calories';
 import { fmtDuration } from '../lib/date';
 import { useStore } from '../state/store';
+import { t } from '../i18n';
 
 export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (name: string) => void }) {
   const { state, dispatch } = useStore();
@@ -41,7 +42,7 @@ export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (nam
   };
 
   const save = () => {
-    const finalName = name.trim() || 'My Workout';
+    const finalName = name.trim() || t('My Workout');
     dispatch({
       type: 'addCustom',
       workout: { id: `c${Date.now()}`, name: finalName, createdAt: Date.now(), items },
@@ -54,30 +55,30 @@ export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (nam
   return (
     <div className="scroll-area" style={{ paddingBottom: 110 }}>
       <div className="topbar">
-        <button className="icon-btn" onClick={onBack} aria-label="Back">
+        <button className="icon-btn" onClick={onBack} aria-label={t('Back')}>
           <Icon name="chevronLeft" size={18} />
         </button>
-        <div className="grow"><div className="eyebrow">Create</div></div>
+        <div className="grow"><div className="eyebrow">{t('Create')}</div></div>
       </div>
 
       <div className="page-pad">
-        <h1 className="h-display">Build a workout</h1>
+        <h1 className="h-display">{t('Build a workout')}</h1>
 
         <input
           className="field" style={{ marginTop: 18 }}
           value={name} onChange={(e) => setName(e.target.value)}
-          placeholder="Workout name"
+          placeholder={t('Workout name')}
         />
 
         {items.length > 0 && (
           <div className="meta-row">
             <span className="chip"><Icon name="clock" size={13} /> {fmtDuration(est.seconds)}</span>
-            <span className="chip"><Icon name="flame" size={13} /> ~{est.calories} kcal</span>
+            <span className="chip"><Icon name="flame" size={13} /> ~{est.calories} {t('kcal')}</span>
           </div>
         )}
 
         <div className="block-head">
-          <h3 className="h-section">Exercises</h3>
+          <h3 className="h-section">{t('Exercises')}</h3>
           <div className="line" />
           <span style={{ fontSize: 12, color: 'var(--txt-3)', fontWeight: 650 }}>{items.length}</span>
         </div>
@@ -86,7 +87,7 @@ export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (nam
           <div className="empty">
             <Icon name="dumbbell" size={28} />
             <p style={{ fontSize: 13.5, maxWidth: 250 }}>
-              Add moves from the library, then set each one to a timer or to sets and reps.
+              {t('Add moves from the library, then set each one to a timer or to sets and reps.')}
             </p>
           </div>
         )}
@@ -100,41 +101,41 @@ export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (nam
                   <Thumb exId={e.id} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="ex-name">{e.name}</div>
-                  <div className="ex-sub">{e.muscles[0]}</div>
+                  <div className="ex-name">{t(e.name)}</div>
+                  <div className="ex-sub">{t(e.muscles[0])}</div>
                 </div>
                 <button className="icon-btn" style={{ width: 30, height: 30 }}
-                        onClick={() => move(i, -1)} aria-label="Move up">
+                        onClick={() => move(i, -1)} aria-label={t('Move up')}>
                   <Icon name="chevronLeft" size={14} className="rot90" />
                 </button>
                 <button className="icon-btn" style={{ width: 30, height: 30 }}
-                        onClick={() => setItems((p) => p.filter((_, j) => j !== i))} aria-label="Remove">
+                        onClick={() => setItems((p) => p.filter((_, j) => j !== i))} aria-label={t('Remove')}>
                   <Icon name="trash" size={14} />
                 </button>
               </div>
 
               <div className="seg" style={{ marginTop: 11 }}>
                 <button className={it.mode === 'time' ? 'on' : ''} onClick={() => it.mode !== 'time' && toggleMode(i)}>
-                  Timer
+                  {t('Timer')}
                 </button>
                 <button className={it.mode === 'reps' ? 'on' : ''} onClick={() => it.mode !== 'reps' && toggleMode(i)}>
-                  Sets × reps
+                  {t('Sets × reps')}
                 </button>
               </div>
 
               <div style={{ display: 'flex', gap: 10, marginTop: 11 }}>
                 {it.mode === 'time' ? (
-                  <Stepper label="Seconds" value={it.seconds} step={5} min={10} max={180}
+                  <Stepper label={t('Seconds')} value={it.seconds} step={5} min={10} max={180}
                            onChange={(v) => update(i, { seconds: v } as Partial<PlanItem>)} />
                 ) : (
                   <>
-                    <Stepper label="Sets" value={it.sets} step={1} min={1} max={8}
+                    <Stepper label={t('Sets')} value={it.sets} step={1} min={1} max={8}
                              onChange={(v) => update(i, { sets: v } as Partial<PlanItem>)} />
-                    <Stepper label="Reps" value={it.reps} step={1} min={1} max={50}
+                    <Stepper label={t('Reps')} value={it.reps} step={1} min={1} max={50}
                              onChange={(v) => update(i, { reps: v } as Partial<PlanItem>)} />
                   </>
                 )}
-                <Stepper label="Rest" value={it.rest} step={5} min={0} max={120}
+                <Stepper label={t('Rest')} value={it.rest} step={5} min={0} max={120}
                          onChange={(v) => update(i, { rest: v } as Partial<PlanItem>)} />
               </div>
             </div>
@@ -142,7 +143,7 @@ export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (nam
         })}
 
         <button className="btn btn-ghost btn-block" style={{ marginTop: 6 }} onClick={() => setPicking(true)}>
-          <Icon name="plus" size={16} /> Add exercise
+          <Icon name="plus" size={16} /> {t('Add exercise')}
         </button>
       </div>
 
@@ -152,15 +153,15 @@ export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (nam
         background: 'linear-gradient(transparent, var(--bg) 28%)',
       }}>
         <button className="btn btn-primary btn-block" disabled={items.length === 0} onClick={save}>
-          Save workout
+          {t('Save workout')}
         </button>
       </div>
 
-      <Sheet open={picking} onClose={() => setPicking(false)} title="Add an exercise">
+      <Sheet open={picking} onClose={() => setPicking(false)} title={t('Add an exercise')}>
         <div className="chips-row" style={{ marginBottom: 14 }}>
           {(['all', 'cardio', 'upper', 'lower', 'core', 'fullbody', 'mobility'] as const).map((g) => (
             <button key={g} className={`chip${filter === g ? ' on' : ''}`} onClick={() => setFilter(g)}>
-              {g === 'all' ? 'All' : GROUP_LABEL[g]}
+              {g === 'all' ? t('All') : t(GROUP_LABEL[g])}
             </button>
           ))}
         </div>
@@ -170,8 +171,8 @@ export function Builder({ onBack, onSaved }: { onBack: () => void; onSaved: (nam
               <Thumb exId={e.id} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="ex-name">{e.name}</div>
-              <div className="ex-sub">{e.muscles.slice(0, 2).join(' · ')}</div>
+              <div className="ex-name">{t(e.name)}</div>
+              <div className="ex-sub">{e.muscles.slice(0, 2).map((m) => t(m)).join(' · ')}</div>
             </div>
             <Icon name="plus" size={17} />
           </button>
@@ -194,14 +195,14 @@ function Stepper({ label, value, step, min, max, onChange }: {
         border: '1px solid var(--hairline)', padding: 3,
       }}>
         <button className="icon-btn" style={{ width: 28, height: 28, background: 'transparent', border: 'none' }}
-                onClick={() => onChange(Math.max(min, value - step))} aria-label={`Decrease ${label}`}>
+                onClick={() => onChange(Math.max(min, value - step))} aria-label={t('Decrease {x}', { x: label })}>
           <Icon name="minus" size={14} />
         </button>
         <span className="num" style={{ flex: 1, textAlign: 'center', fontWeight: 750, fontSize: 14 }}>
           {value}
         </span>
         <button className="icon-btn" style={{ width: 28, height: 28, background: 'transparent', border: 'none' }}
-                onClick={() => onChange(Math.min(max, value + step))} aria-label={`Increase ${label}`}>
+                onClick={() => onChange(Math.min(max, value + step))} aria-label={t('Increase {x}', { x: label })}>
           <Icon name="plus" size={14} />
         </button>
       </div>

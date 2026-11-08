@@ -18,7 +18,7 @@ import shell
 from apkgen import Node, axml, arsc, write_zip, sign_v2
 
 PACKAGE = 'com.gk.fitness'
-VERSION_CODE, VERSION_NAME = 3, '1.2.0'
+VERSION_CODE, VERSION_NAME = 4, '1.3.0'
 
 
 def manifest():

@@ -4,6 +4,11 @@ import App from './App';
 import { StoreProvider } from './state/store';
 import './styles/global.css';
 import './styles/app.css';
+// Telugu script, bundled so it renders (and shapes conjuncts) correctly on every phone, offline
+import '@fontsource/noto-sans-telugu/telugu-400.css';
+import '@fontsource/noto-sans-telugu/telugu-600.css';
+import '@fontsource/noto-sans-telugu/telugu-700.css';
+import '@fontsource/noto-sans-telugu/telugu-800.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

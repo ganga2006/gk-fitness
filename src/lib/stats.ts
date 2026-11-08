@@ -1,6 +1,7 @@
 import { BY_ID, type Group, type Level } from '../data/exercises';
 import { addDays, dateKey, fromKey, startOfWeek } from './date';
 import type { SessionLog } from './types';
+import { getLang, t } from '../i18n';
 
 export type Stats = {
   sessions: number;
@@ -114,7 +115,9 @@ export function buildStats(logs: SessionLog[]): Stats {
 /** Calories for each of the last `n` days, oldest first. */
 export function dailySeries(stats: Stats, n = 7): { key: string; label: string; value: number }[] {
   const out: { key: string; label: string; value: number }[] = [];
-  const labels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const labels = getLang() === 'te'
+    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => t(d))
+    : ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   for (let i = n - 1; i >= 0; i--) {
     const d = addDays(new Date(), -i);
     const k = dateKey(d);
@@ -136,13 +139,13 @@ export function suggestLevel(current: Level, stats: Stats): { level: Level; reas
   if (e.every((x) => x === 1) && idx < 2) {
     return {
       level: order[idx + 1],
-      reason: 'Your last three sessions all felt too easy. Ready to step up?',
+      reason: t('Your last three sessions all felt too easy. Ready to step up?'),
     };
   }
   if (e.every((x) => x === 3) && idx > 0) {
     return {
       level: order[idx - 1],
-      reason: 'Your last three sessions all felt too hard. Easing back will build a stronger base.',
+      reason: t('Your last three sessions all felt too hard. Easing back will build a stronger base.'),
     };
   }
   return null;

@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Thumb } from '../anim/Thumb';
 import { Icon } from '../components/Icon';
-import { BY_ID, ex } from '../data/exercises';
+import { BY_ID, ex, GROUP_LABEL } from '../data/exercises';
+import { t } from '../i18n';
 import type { Block } from '../data/plans';
 import { estimateSession } from '../lib/calories';
 import { fmtDuration } from '../lib/date';
@@ -27,31 +28,31 @@ export function Preview({
   return (
     <div className="scroll-area" style={{ paddingBottom: 110 }}>
       <div className="topbar">
-        <button className="icon-btn" onClick={onBack} aria-label="Back">
+        <button className="icon-btn" onClick={onBack} aria-label={t('Back')}>
           <Icon name="chevronLeft" size={18} />
         </button>
         <div className="grow">
-          <div className="eyebrow">Workout</div>
+          <div className="eyebrow">{t('Workout')}</div>
         </div>
       </div>
 
       <div className="page-pad">
-        <h1 className="h-display">{title}</h1>
+        <h1 className="h-display">{t(title)}</h1>
         <div className="meta-row">
           <span className="chip"><Icon name="clock" size={13} /> {fmtDuration(est.seconds)}</span>
-          <span className="chip"><Icon name="flame" size={13} /> ~{est.calories} kcal</span>
-          <span className="chip"><Icon name="dumbbell" size={13} /> {items.length} moves</span>
+          <span className="chip"><Icon name="flame" size={13} /> ~{est.calories} {t('kcal')}</span>
+          <span className="chip"><Icon name="dumbbell" size={13} /> {t('{n} moves', { n: items.length })}</span>
         </div>
         {groups.length > 0 && (
           <p style={{ color: 'var(--txt-3)', fontSize: 12.5, marginTop: 10 }}>
-            Targets: {groups.join(' · ')}
+            {t('Targets')}: {groups.map((g) => t(GROUP_LABEL[g as keyof typeof GROUP_LABEL])).join(' · ')}
           </p>
         )}
 
         {blocks.map((b) => (
           <div key={b.name}>
             <div className="block-head">
-              <h3 className="h-section">{b.name}</h3>
+              <h3 className="h-section">{t(b.name)}</h3>
               <div className="line" />
               <span style={{ fontSize: 11.5, color: 'var(--txt-3)', fontWeight: 650 }}>
                 {b.items.length}
@@ -65,11 +66,11 @@ export function Preview({
                     <Thumb exId={e.id} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="ex-name">{e.name}</div>
-                    <div className="ex-sub">{e.muscles.slice(0, 2).join(' · ')}</div>
+                    <div className="ex-name">{t(e.name)}</div>
+                    <div className="ex-sub">{e.muscles.slice(0, 2).map((m) => t(m)).join(' · ')}</div>
                   </div>
                   <span className="ex-dose">
-                    {it.mode === 'time' ? `${it.seconds}s` : `${it.sets} × ${it.reps}`}
+                    {it.mode === 'time' ? t('{s}s', { s: it.seconds }) : `${it.sets} × ${it.reps}`}
                   </span>
                 </button>
               );
@@ -84,7 +85,7 @@ export function Preview({
         background: 'linear-gradient(transparent, var(--bg) 28%)',
       }}>
         <button className="btn btn-primary btn-block" onClick={onStart}>
-          <Icon name="play" size={16} /> Start workout
+          <Icon name="play" size={16} /> {t('Start workout')}
         </button>
       </div>
     </div>

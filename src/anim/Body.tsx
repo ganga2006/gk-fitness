@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Model3D, webglAvailable } from './Model3D';
 import { AnatomyModel } from './AnatomyModel';
 import { useStore } from '../state/store';
@@ -28,7 +29,7 @@ export function Body({
     return (
       <div className={className} style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center',
         color: 'var(--txt-3)', fontSize: 12, textAlign: 'center', padding: 12 }}>
-        3D view needs WebGL — turn on hardware acceleration in your browser
+        {t('3D view needs WebGL — turn on hardware acceleration in your browser')}
       </div>
     );
   }

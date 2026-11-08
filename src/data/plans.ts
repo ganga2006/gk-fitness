@@ -16,7 +16,7 @@ export type DayPlan = {
 };
 
 /** Two ways to run the week. */
-export type PlanStyle = 'focus' | 'split';
+export type PlanStyle = 'smart' | 'focus' | 'split';
 
 const T = (id: string, seconds: number, rest = 15): PlanItem => ({ id, mode: 'time', seconds, rest });
 const R = (id: string, sets: number, reps: number, rest = 30): PlanItem => ({ id, mode: 'reps', sets, reps, rest });
@@ -429,9 +429,162 @@ const ADVANCED_SPLIT: DayPlan[] = [
   RECOVERY_DAY(6),
 ];
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAST RESULTS — best results in the least time (research-based)
+   • Multi-joint moves only, paired as supersets (push ↔ legs, pull ↔
+     hips): roughly halves session time for the same work
+     (Iversen et al., Sports Med 2021).
+   • Bodyweight is a light load, so sets go close to failure — push-ups
+     taken near failure build chest and triceps like a low-load bench
+     press (Kikuchi & Nakazato 2017).
+   • Strength on 3 days a week covers the WHO minimum of 2.
+   • A 3 × 20-second all-out finisher: in Gillen et al. (PLoS One 2016)
+     this matched 45 minutes of steady cardio for VO₂ and insulin
+     sensitivity, in a fifth of the time.
+   • Core: anti-extension / anti-rotation holds (dead bug, bird dog,
+     side plank) rather than long crunch sets.
+   • Between strength days, a 10-minute "exercise snack" — short
+     vigorous bouts still raise fitness (Jenkins et al. 2019).
+   ═══════════════════════════════════════════════════════════════════ */
+
+const S1 = (id: string, reps: number, rest: number): PlanItem => ({ id, mode: 'reps', sets: 1, reps, rest });
+/** a superset: A then B, `rounds` times, short rest inside the pair, longer after it */
+const SUPERSET = (a: string, ra: number, b: string, rb: number, rounds: number, inner = 15, after = 60): PlanItem[] =>
+  Array.from({ length: rounds }, (_, i) => [S1(a, ra, inner), S1(b, rb, i === rounds - 1 ? 30 : after)]).flat();
+/** all-out 20 s efforts with easy marching in between */
+const SPRINTS = (id: string, easy = 60): Block => ({ name: 'All-out finisher', items: [
+  T(id, 20, 0), T('march-in-place', easy, 0), T(id, 20, 0), T('march-in-place', easy, 0), T(id, 20, 0),
+]});
+const WARM_FAST: Block = { name: 'Warm-up', items: [
+  T('jumping-jacks', 30, 8), T('arm-circles', 25, 8), T('inchworm', 35, 8), T('bodyweight-squat', 25, 10),
+]};
+const COOL_FAST: Block = { name: 'Cool-down', items: [
+  T('hamstring-stretch', 35, 5), T('cobra', 30, 5), T('child-pose', 40, 0),
+]};
+const SNACK = (day: number, burst: string): DayPlan => ({
+  day, title: 'Exercise Snack', focus: '10 minutes: short hard bursts to keep fitness climbing', kind: 'recovery', blocks: [
+    { name: 'Snack', items: [
+      T('march-in-place', 40, 5), T(burst, 30, 30), T('hip-circles', 30, 5), T(burst, 30, 30),
+      T('cat-cow', 40, 5), T(burst, 30, 30), T('worlds-greatest', 50, 5), T('wall-angel', 40, 0),
+    ]},
+  ],
+});
+
+const BEGINNER_SMART: DayPlan[] = [
+  { day: 0, title: 'Full Body A', focus: 'Supersets to near failure, then 3 all-out bursts', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('knee-pushup', 10, 'bodyweight-squat', 15, 3) },
+    { name: 'Superset: pull + hips', items: SUPERSET('doorway-row', 12, 'glute-bridge', 15, 3) },
+    { name: 'Core', items: [T('dead-bug', 35, 15), T('side-plank', 20, 10), T('bird-dog', 40, 20)] },
+    SPRINTS('jumping-jacks', 75),
+    COOL_FAST,
+  ]},
+  SNACK(1, 'march-in-place'),
+  { day: 2, title: 'Full Body B', focus: 'Same idea, different angles', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('incline-pushup', 12, 'forward-lunge', 10, 3) },
+    { name: 'Superset: pull + hips', items: SUPERSET('superman', 12, 'sumo-squat', 15, 3) },
+    { name: 'Core', items: [T('forearm-plank', 30, 15), T('bird-dog', 40, 15), T('dead-bug', 35, 20)] },
+    SPRINTS('squat-thrust', 75),
+    COOL_FAST,
+  ]},
+  SNACK(3, 'jumping-jacks'),
+  { day: 4, title: 'Full Body A', focus: 'Beat Monday by one rep per set', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('knee-pushup', 12, 'bodyweight-squat', 18, 3) },
+    { name: 'Superset: pull + hips', items: SUPERSET('doorway-row', 14, 'glute-bridge', 18, 3) },
+    { name: 'Core', items: [T('dead-bug', 40, 15), T('side-plank', 25, 10), T('bird-dog', 40, 20)] },
+    SPRINTS('jumping-jacks', 75),
+    COOL_FAST,
+  ]},
+  RECOVERY_DAY(5),
+  REST_DAY(6),
+];
+
+const INTERMEDIATE_SMART: DayPlan[] = [
+  { day: 0, title: 'Full Body A', focus: 'Supersets to near failure, then 3 all-out bursts', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('pushup', 15, 'forward-lunge', 12, 3) },
+    { name: 'Superset: pull + hips', items: SUPERSET('doorway-row', 15, 'glute-bridge', 20, 3) },
+    { name: 'Core', items: [T('plank', 45, 15), T('side-plank', 30, 10), T('dead-bug', 40, 20)] },
+    SPRINTS('burpee', 60),
+    COOL_FAST,
+  ]},
+  SNACK(1, 'high-knees'),
+  { day: 2, title: 'Full Body B', focus: 'Same idea, different angles', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('pike-pushup', 10, 'bodyweight-squat', 25, 3) },
+    { name: 'Superset: pull + hips', items: SUPERSET('prone-y-raise', 15, 'wide-pushup', 12, 3) },
+    { name: 'Core', items: [T('shoulder-tap-plank', 40, 15), T('bird-dog', 40, 15), T('hollow-hold', 25, 20)] },
+    SPRINTS('high-knees', 60),
+    COOL_FAST,
+  ]},
+  SNACK(3, 'jumping-jacks'),
+  { day: 4, title: 'Full Body A', focus: 'Beat Monday by one rep per set', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('pushup', 17, 'forward-lunge', 14, 3) },
+    { name: 'Superset: pull + hips', items: SUPERSET('doorway-row', 17, 'glute-bridge', 22, 3) },
+    { name: 'Core', items: [T('plank', 50, 15), T('side-plank', 35, 10), T('dead-bug', 45, 20)] },
+    SPRINTS('burpee', 60),
+    COOL_FAST,
+  ]},
+  RECOVERY_DAY(5),
+  REST_DAY(6),
+];
+
+const ADVANCED_SMART: DayPlan[] = [
+  { day: 0, title: 'Full Body A', focus: 'Supersets to near failure, then 3 all-out bursts', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('archer-pushup', 8, 'jump-lunge', 12, 3, 15, 75) },
+    { name: 'Superset: pull + hips', items: SUPERSET('doorway-row', 20, 'jump-squat', 15, 3, 15, 75) },
+    { name: 'Core', items: [T('hollow-hold', 40, 15), T('side-plank', 45, 10), T('swimmer', 40, 20)] },
+    SPRINTS('burpee', 60),
+    COOL_FAST,
+  ]},
+  SNACK(1, 'high-knees'),
+  { day: 2, title: 'Full Body B', focus: 'Same idea, different angles', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('diamond-pushup', 15, 'forward-lunge', 16, 3, 15, 75) },
+    { name: 'Superset: pull + hips', items: SUPERSET('pike-pushup', 14, 'glute-bridge', 25, 3, 15, 75) },
+    { name: 'Core', items: [T('shoulder-tap-plank', 50, 15), T('reverse-plank', 40, 15), T('hollow-hold', 40, 20)] },
+    SPRINTS('jump-squat', 60),
+    COOL_FAST,
+  ]},
+  SNACK(3, 'skater-hops'),
+  { day: 4, title: 'Full Body A', focus: 'Beat Monday by one rep per set', kind: 'workout', blocks: [
+    WARM_FAST,
+    { name: 'Superset: push + legs', items: SUPERSET('archer-pushup', 10, 'jump-lunge', 14, 3, 15, 75) },
+    { name: 'Superset: pull + hips', items: SUPERSET('doorway-row', 22, 'jump-squat', 17, 3, 15, 75) },
+    { name: 'Core', items: [T('hollow-hold', 45, 15), T('side-plank', 50, 10), T('swimmer', 45, 20)] },
+    SPRINTS('burpee', 60),
+    COOL_FAST,
+  ]},
+  RECOVERY_DAY(5),
+  REST_DAY(6),
+];
+
+/** What the fast-results programme is, in one line each, with its sources. */
+export const SMART_BLURB = {
+  headline: 'Best results, less time',
+  detail: '3 strength days of supersets taken close to failure, each ending with 3 all-out 20-second bursts, plus 10-minute exercise snacks between. About 20 minutes a session.',
+  sources: [
+    { label: 'Iversen et al. 2021 — time-efficient strength training (Sports Medicine)', url: 'https://pubmed.ncbi.nlm.nih.gov/34125411/' },
+    { label: 'Gillen et al. 2016 — 1 minute of all-out work vs 45 minutes of cardio (PLoS One)', url: 'https://doaj.org/article/0d8f38860885479c87ee1ba61460002b' },
+    { label: 'Kikuchi & Nakazato 2017 — push-ups build muscle like bench press', url: 'https://doaj.org/article/f70cce826f3348b5b4f3ace8cf8ac33e' },
+    { label: 'WHO 2020 physical activity guidelines', url: 'https://www.acefitness.org/resources/pros/expert-articles/7751/who-releases-new-guidelines-on-physical-activity-and-sedentary-behavior/' },
+    { label: 'Jenkins et al. 2019 — exercise snacks improve fitness', url: 'https://www.sciencedaily.com/releases/2019/01/190118110833.htm' },
+  ],
+};
+
 /* ── public API ──────────────────────────────────────────────────── */
 
 export const PLANS: Record<PlanStyle, Record<Level, DayPlan[]>> = {
+  smart: {
+    beginner: BEGINNER_SMART,
+    intermediate: INTERMEDIATE_SMART,
+    advanced: ADVANCED_SMART,
+  },
   focus: {
     beginner: BEGINNER_FOCUS,
     intermediate: INTERMEDIATE_FOCUS,

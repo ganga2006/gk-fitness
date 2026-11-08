@@ -47,8 +47,17 @@ Other commands:
 | Intermediate | Chest | Pressing volume leads; core kept as a shorter supporting block |
 | Advanced | Abs & chest | High-volume pressing supersetted with high-tension ab work |
 
-**Two ways to run the week** (Settings → Weekly programme)
+**Telugu and English** — the first screen asks which language. Every screen,
+exercise cue and the voice coach then use it (switch any time in Settings).
+Translations live in `src/i18n/` keyed by the English text; the Android app
+speaks Telugu with the phone's own Telugu text-to-speech voice.
 
+**Three ways to run the week** (Settings → Weekly programme)
+
+- **Fast results** (default) — research-based: 3 × ~20-minute full-body days of
+  supersets taken close to failure, each ending with 3 all-out 20-second
+  bursts, plus 10-minute exercise snacks between. Sources are listed in the app
+  under *Why this works*.
 - **Focus** — the level emphasis above.
 - **Body split** — one body part per day, arranged so each major muscle group is
   trained about twice a week.

@@ -6,6 +6,7 @@ import { Icon } from '../components/Icon';
 import { Sheet } from '../components/Sheet';
 import { EXERCISES, GROUP_LABEL, BY_ID, type Group, type Level } from '../data/exercises';
 import { useStore } from '../state/store';
+import { t } from '../i18n';
 
 const GROUPS: (Group | 'all')[] = ['all', 'cardio', 'upper', 'lower', 'core', 'fullbody', 'mobility'];
 
@@ -26,7 +27,8 @@ export function Library({ openId, setOpenId }: {
       if (!needle) return true;
       return (
         e.name.toLowerCase().includes(needle) ||
-        e.muscles.some((m) => m.toLowerCase().includes(needle))
+        t(e.name).toLowerCase().includes(needle) ||
+        e.muscles.some((m) => m.toLowerCase().includes(needle) || t(m).includes(needle))
       );
     });
   }, [q, group, level]);
@@ -35,8 +37,8 @@ export function Library({ openId, setOpenId }: {
     <div className="scroll-area">
       <div className="topbar">
         <div className="grow">
-          <div className="eyebrow">{EXERCISES.length} exercises</div>
-          <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-.028em' }}>Library</h2>
+          <div className="eyebrow">{t('{n} exercises', { n: EXERCISES.length })}</div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-.028em' }}>{t('Library')}</h2>
         </div>
       </div>
 
@@ -47,14 +49,14 @@ export function Library({ openId, setOpenId }: {
           </span>
           <input
             className="field" value={q} onChange={(e) => setQ(e.target.value)}
-            placeholder="Search moves or muscles" style={{ paddingLeft: 42 }}
+            placeholder={t('Search moves or muscles')} style={{ paddingLeft: 42 }}
           />
         </div>
 
         <div className="chips-row" style={{ marginTop: 12 }}>
           {GROUPS.map((g) => (
             <button key={g} className={`chip${group === g ? ' on' : ''}`} onClick={() => setGroup(g)}>
-              {g === 'all' ? 'All' : GROUP_LABEL[g]}
+              {g === 'all' ? t('All') : t(GROUP_LABEL[g])}
             </button>
           ))}
         </div>
@@ -62,7 +64,7 @@ export function Library({ openId, setOpenId }: {
         <div className="chips-row" style={{ marginTop: 8 }}>
           {(['all', 'beginner', 'intermediate', 'advanced'] as const).map((l) => (
             <button key={l} className={`chip${level === l ? ' on' : ''}`} onClick={() => setLevel(l)}>
-              {l === 'all' ? 'Any level' : l[0].toUpperCase() + l.slice(1)}
+              {l === 'all' ? t('Any level') : t(l[0].toUpperCase() + l.slice(1))}
             </button>
           ))}
         </div>
@@ -74,8 +76,8 @@ export function Library({ openId, setOpenId }: {
                 <Thumb exId={e.id} />
               </div>
               <div>
-                <div className="ex-name" style={{ fontSize: 13.5 }}>{e.name}</div>
-                <div className="ex-sub" style={{ fontSize: 11.5 }}>{e.muscles[0]}</div>
+                <div className="ex-name" style={{ fontSize: 13.5 }}>{t(e.name)}</div>
+                <div className="ex-sub" style={{ fontSize: 11.5 }}>{t(e.muscles[0])}</div>
               </div>
             </button>
           ))}
@@ -84,7 +86,7 @@ export function Library({ openId, setOpenId }: {
         {list.length === 0 && (
           <div className="empty">
             <Icon name="search" size={28} />
-            <p style={{ fontSize: 13.5 }}>Nothing matches that. Try a different filter.</p>
+            <p style={{ fontSize: 13.5 }}>{t('Nothing matches that. Try a different filter.')}</p>
           </div>
         )}
         <div style={{ height: 16 }} />
@@ -102,7 +104,7 @@ export function ExerciseSheet({ id, onClose, onSwap }: {
   const e = id ? BY_ID[id] : null;
 
   return (
-    <Sheet open={!!e} onClose={onClose} title={e?.name}>
+    <Sheet open={!!e} onClose={onClose} title={e ? t(e.name) : undefined}>
       {e && (
         <>
           <div style={{
@@ -114,81 +116,81 @@ export function ExerciseSheet({ id, onClose, onSwap }: {
               position: 'absolute', left: 12, bottom: 10,
               fontSize: 10.5, color: 'var(--txt-3)', fontWeight: 650,
             }}>
-              Red = muscles worked · drag to rotate
+              {t('Red = muscles worked · drag to rotate')}
             </span>
           </div>
 
           <div className="target-row" style={{ marginBottom: 14 }}>
             {partsOf(e).map((p) => (
-              <span key={p} className="target-chip" title={PART_ANATOMY[p]}>
-                {PART_LABEL[p]}
+              <span key={p} className="target-chip" title={t(PART_ANATOMY[p])}>
+                {t(PART_LABEL[p])}
               </span>
             ))}
           </div>
           <p style={{ fontSize: 11, color: 'var(--txt-3)', marginTop: -6, marginBottom: 16, lineHeight: 1.5 }}>
-            {partsOf(e).map((p) => PART_ANATOMY[p]).join(' · ')}
+            {partsOf(e).map((p) => t(PART_ANATOMY[p])).join(' · ')}
           </p>
 
           <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 16 }}>
-            <span className="chip">{GROUP_LABEL[e.group]}</span>
-            {e.levels.map((l) => <span key={l} className="chip">{l}</span>)}
+            <span className="chip">{t(GROUP_LABEL[e.group])}</span>
+            {e.levels.map((l) => <span key={l} className="chip">{t(l)}</span>)}
             <span className="chip"><Icon name="bolt" size={12} /> MET {e.met}</span>
           </div>
 
-          <Section title="Targets">
+          <Section title={t('Targets')}>
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
-              {e.muscles.map((m) => <span key={m} className="chip">{m}</span>)}
+              {e.muscles.map((m) => <span key={m} className="chip">{t(m)}</span>)}
             </div>
           </Section>
 
-          <Section title="Form cues">
+          <Section title={t('Form cues')}>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {e.cues.map((c) => (
                 <li key={c} style={{ display: 'flex', gap: 10, fontSize: 13.5, lineHeight: 1.45 }}>
                   <span style={{ color: 'var(--volt)', marginTop: 2 }}><Icon name="check" size={15} /></span>
-                  <span>{c}</span>
+                  <span>{t(c)}</span>
                 </li>
               ))}
             </ul>
           </Section>
 
-          <Section title="Common mistakes">
+          <Section title={t('Common mistakes')}>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {e.mistakes.map((c) => (
                 <li key={c} style={{ display: 'flex', gap: 10, fontSize: 13.5, lineHeight: 1.45 }}>
                   <span style={{ color: 'var(--danger)', marginTop: 2 }}><Icon name="close" size={15} /></span>
-                  <span style={{ color: 'var(--txt-2)' }}>{c}</span>
+                  <span style={{ color: 'var(--txt-2)' }}>{t(c)}</span>
                 </li>
               ))}
             </ul>
           </Section>
 
-          <Section title="How to improve">
+          <Section title={t('How to improve')}>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {e.tips.map((c) => (
                 <li key={c} style={{ display: 'flex', gap: 10, fontSize: 13.5, lineHeight: 1.45 }}>
                   <span style={{ color: 'var(--aqua)', marginTop: 2 }}><Icon name="spark" size={15} /></span>
-                  <span style={{ color: 'var(--txt-2)' }}>{c}</span>
+                  <span style={{ color: 'var(--txt-2)' }}>{t(c)}</span>
                 </li>
               ))}
             </ul>
           </Section>
 
           {(e.easier || e.harder) && (
-            <Section title="Progressions">
+            <Section title={t('Progressions')}>
               <div style={{ display: 'flex', gap: 10 }}>
                 {e.easier && BY_ID[e.easier] && (
                   <button className="card" style={{ flex: 1, padding: 12, textAlign: 'left' }}
                           onClick={() => onSwap(e.easier!)}>
-                    <div className="eyebrow">Easier</div>
-                    <div style={{ fontWeight: 700, fontSize: 13.5, marginTop: 4 }}>{BY_ID[e.easier].name}</div>
+                    <div className="eyebrow">{t('Easier')}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13.5, marginTop: 4 }}>{t(BY_ID[e.easier].name)}</div>
                   </button>
                 )}
                 {e.harder && BY_ID[e.harder] && (
                   <button className="card" style={{ flex: 1, padding: 12, textAlign: 'left' }}
                           onClick={() => onSwap(e.harder!)}>
-                    <div className="eyebrow">Harder</div>
-                    <div style={{ fontWeight: 700, fontSize: 13.5, marginTop: 4 }}>{BY_ID[e.harder].name}</div>
+                    <div className="eyebrow">{t('Harder')}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13.5, marginTop: 4 }}>{t(BY_ID[e.harder].name)}</div>
                   </button>
                 )}
               </div>

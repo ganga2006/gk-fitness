@@ -16,6 +16,7 @@ import { Library, ExerciseSheet } from './screens/Library';
 import { Builder } from './screens/Builder';
 import { Settings } from './screens/Settings';
 import type { Level } from './data/exercises';
+import { t } from './i18n';
 
 type Tab = 'today' | 'calendar' | 'library' | 'stats';
 
@@ -66,7 +67,7 @@ export default function App() {
   const startWorkout = (payload: StartPayload) => {
     coach.unlock();
     const steps = buildFromBlocks(payload.blocks);
-    if (!steps.length) { say('That workout has no exercises yet.'); return; }
+    if (!steps.length) { say(t('That workout has no exercises yet.')); return; }
     setRoute({ name: 'player', steps, payload });
   };
 
@@ -94,7 +95,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" key={state.settings.lang ?? 'en'}>
       {route.name === 'tabs' && (
         <>
           {tab === 'today' && (
@@ -109,19 +110,19 @@ export default function App() {
           {tab === 'stats' && <StatsScreen />}
 
           <nav className="tabbar">
-            {TABS.map((t) => (
+            {TABS.map((tb) => (
               <button
-                key={t.id}
-                className={`tab${tab === t.id ? ' active' : ''}`}
-                onClick={() => setTab(t.id)}
+                key={tb.id}
+                className={`tab${tab === tb.id ? ' active' : ''}`}
+                onClick={() => setTab(tb.id)}
               >
-                <Icon name={t.icon} size={21} />
-                <span>{t.label}</span>
+                <Icon name={tb.icon} size={21} />
+                <span>{t(tb.label)}</span>
               </button>
             ))}
             <button className="tab" onClick={() => setRoute({ name: 'settings' })}>
               <Icon name="settings" size={21} />
-              <span>Profile</span>
+              <span>{t('Profile')}</span>
             </button>
           </nav>
         </>
@@ -153,7 +154,7 @@ export default function App() {
       {route.name === 'builder' && (
         <Builder
           onBack={() => setRoute({ name: 'tabs' })}
-          onSaved={(n) => { setRoute({ name: 'tabs' }); say(`Saved "${n}"`); }}
+          onSaved={(n) => { setRoute({ name: 'tabs' }); say(t('Saved "{name}"', { name: n })); }}
         />
       )}
 

@@ -110,6 +110,14 @@ def build():
         ('invoke-virtual', M(SP, 'setSpeechRate', 'I', 'F'), [0, 2]),
         ('return-void',),
     ], annotate=True))
+    # setLang('te-IN'): the voice coach speaks Telugu with the phone's own Telugu voice
+    tts.methods.append(Method(TTS, 'setLang', 'V', [STR], 0x1, 4, 2, 2, [
+        ('iget-object', 0, 2, F(TTS, 't', SP)),
+        ('invoke-static', M('Ljava/util/Locale;', 'forLanguageTag', 'Ljava/util/Locale;', STR), [3]),
+        ('move-result-object', 1),
+        ('invoke-virtual', M(SP, 'setLanguage', 'I', 'Ljava/util/Locale;'), [0, 1]),
+        ('return-void',),
+    ], annotate=True))
     tts.methods.append(Method(TTS, 'setPitch', 'V', ['F'], 0x1, 3, 2, 2, [
         ('iget-object', 0, 1, F(TTS, 't', SP)),
         ('invoke-virtual', M(SP, 'setPitch', 'I', 'F'), [0, 2]),

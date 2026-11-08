@@ -5,6 +5,7 @@ import { GROUP_LABEL, type Group } from '../data/exercises';
 import { dailySeries } from '../lib/stats';
 import { fmtDuration } from '../lib/date';
 import { useStore } from '../state/store';
+import { t } from '../i18n';
 
 const GROUP_COLORS: Record<Group, string> = {
   cardio: 'var(--ember)',
@@ -35,8 +36,8 @@ export function StatsScreen() {
     <div className="scroll-area">
       <div className="topbar">
         <div className="grow">
-          <div className="eyebrow">Progress</div>
-          <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-.028em' }}>Stats</h2>
+          <div className="eyebrow">{t('Progress')}</div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-.028em' }}>{t('Stats')}</h2>
         </div>
       </div>
 
@@ -44,27 +45,27 @@ export function StatsScreen() {
         <div className="stat-grid">
           <div className="stat-tile">
             <span className="stat-val num">{stats.sessions}</span>
-            <span className="stat-lab">Workouts</span>
+            <span className="stat-lab">{t('Workouts')}</span>
           </div>
           <div className="stat-tile">
             <span className="stat-val num" style={{ color: 'var(--volt)' }}>{stats.totalCalories}</span>
-            <span className="stat-lab">Total kcal</span>
+            <span className="stat-lab">{t('Total kcal')}</span>
           </div>
           <div className="stat-tile">
             <span className="stat-val num" style={{ color: 'var(--aqua)' }}>{stats.totalMinutes}</span>
-            <span className="stat-lab">Total min</span>
+            <span className="stat-lab">{t('Total min')}</span>
           </div>
         </div>
 
         {/* ── calories chart ── */}
         <div className="block-head">
-          <h3 className="h-section">Calories burned</h3>
+          <h3 className="h-section">{t('Calories burned')}</h3>
           <div className="line" />
         </div>
         <div className="seg" style={{ marginBottom: 16 }}>
           {([7, 14, 30] as const).map((n) => (
             <button key={n} className={range === n ? 'on' : ''} onClick={() => setRange(n)}>
-              {n}d
+              {t('{n}d', { n })}
             </button>
           ))}
         </div>
@@ -76,7 +77,7 @@ export function StatsScreen() {
                 <div
                   className={`bar${s.value === 0 ? ' empty' : ''}`}
                   style={{ height: `${Math.max(2, (s.value / peak) * 100)}%` }}
-                  title={`${s.key}: ${s.value} kcal`}
+                  title={`${s.key}: ${s.value} ${t('kcal')}`}
                 />
                 {range <= 14 && <span className="bar-l">{s.label}</span>}
                 {range > 14 && i % 5 === 0 && <span className="bar-l">{s.key.slice(8)}</span>}
@@ -85,37 +86,37 @@ export function StatsScreen() {
             ))}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14, fontSize: 11.5, color: 'var(--txt-3)', fontWeight: 650 }}>
-            <span>Peak {peak} kcal</span>
-            <span>{series.reduce((a, b) => a + b.value, 0)} kcal total</span>
+            <span>{t('Peak {n} kcal', { n: peak })}</span>
+            <span>{t('{n} kcal total', { n: series.reduce((a, b) => a + b.value, 0) })}</span>
           </div>
         </div>
 
         {/* ── personal records ── */}
         <div className="block-head">
-          <h3 className="h-section">Personal records</h3>
+          <h3 className="h-section">{t('Personal records')}</h3>
           <div className="line" />
         </div>
         <div className="row">
           <div style={{ color: 'var(--ember)' }}><Icon name="flame" size={19} /></div>
           <div className="grow">
-            <div className="row-t">Longest streak</div>
-            <div className="row-s">Consecutive training days</div>
+            <div className="row-t">{t('Longest streak')}</div>
+            <div className="row-s">{t('Consecutive training days')}</div>
           </div>
           <span className="num" style={{ fontWeight: 800, fontSize: 17 }}>{stats.bestStreak}</span>
         </div>
         <div className="row">
           <div style={{ color: 'var(--volt)' }}><Icon name="bolt" size={19} /></div>
           <div className="grow">
-            <div className="row-t">Biggest burn</div>
-            <div className="row-s">Most calories in one session</div>
+            <div className="row-t">{t('Biggest burn')}</div>
+            <div className="row-s">{t('Most calories in one session')}</div>
           </div>
           <span className="num" style={{ fontWeight: 800, fontSize: 17 }}>{stats.bestSessionCalories}</span>
         </div>
         <div className="row">
           <div style={{ color: 'var(--aqua)' }}><Icon name="shield" size={19} /></div>
           <div className="grow">
-            <div className="row-t">Longest hold</div>
-            <div className="row-s">Plank, wall sit or hollow hold</div>
+            <div className="row-t">{t('Longest hold')}</div>
+            <div className="row-s">{t('Plank, wall sit or hollow hold')}</div>
           </div>
           <span className="num" style={{ fontWeight: 800, fontSize: 17 }}>
             {stats.longestHoldSec ? fmtDuration(stats.longestHoldSec) : '—'}
@@ -126,7 +127,7 @@ export function StatsScreen() {
         {groupRows.length > 0 && (
           <>
             <div className="block-head">
-              <h3 className="h-section">Training balance</h3>
+              <h3 className="h-section">{t('Training balance')}</h3>
               <div className="line" />
             </div>
             <div className="card" style={{ padding: 16 }}>
@@ -139,7 +140,7 @@ export function StatsScreen() {
                 {groupRows.map((r) => (
                   <div key={r.g} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13 }}>
                     <span className="lvl-dot" style={{ background: GROUP_COLORS[r.g] }} />
-                    <span style={{ flex: 1 }}>{GROUP_LABEL[r.g]}</span>
+                    <span style={{ flex: 1 }}>{t(GROUP_LABEL[r.g])}</span>
                     <span style={{ color: 'var(--txt-3)', fontSize: 12 }}>{fmtDuration(r.sec)}</span>
                     <span className="num" style={{ fontWeight: 700, minWidth: 34, textAlign: 'right' }}>
                       {Math.round(r.pct * 100)}%
@@ -153,7 +154,7 @@ export function StatsScreen() {
 
         {/* ── achievements ── */}
         <div className="block-head">
-          <h3 className="h-section">Achievements</h3>
+          <h3 className="h-section">{t('Achievements')}</h3>
           <div className="line" />
           <span style={{ fontSize: 12, color: 'var(--txt-3)', fontWeight: 650 }}>
             {unlockedCount}/{achievements.length}
@@ -163,8 +164,8 @@ export function StatsScreen() {
           {achievements.map((a) => (
             <div key={a.id} className={`ach ${a.tier}${a.unlocked ? '' : ' locked'}`}>
               <div className="ach-ic"><Icon name={a.icon} size={18} /></div>
-              <div className="ach-n">{a.name}</div>
-              <div className="ach-d">{a.desc}</div>
+              <div className="ach-n">{t(a.name)}</div>
+              <div className="ach-d">{t(a.desc)}</div>
               {!a.unlocked && (
                 <>
                   <div className="ach-bar"><i style={{ width: `${a.pct * 100}%` }} /></div>
@@ -181,7 +182,7 @@ export function StatsScreen() {
         {state.weights.length > 1 && (
           <>
             <div className="block-head">
-              <h3 className="h-section">Weight</h3>
+              <h3 className="h-section">{t('Weight')}</h3>
               <div className="line" />
             </div>
             <WeightChart entries={state.weights} />
@@ -220,9 +221,9 @@ function WeightChart({ entries }: { entries: { date: string; kg: number }[] }) {
         })}
       </svg>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: 11.5, color: 'var(--txt-3)', fontWeight: 650 }}>
-        <span>{pts[0].kg} kg</span>
+        <span>{pts[0].kg} {t('kg')}</span>
         <span className="num" style={{ color: 'var(--txt)', fontWeight: 800 }}>
-          {pts[pts.length - 1].kg} kg
+          {pts[pts.length - 1].kg} {t('kg')}
         </span>
       </div>
     </div>

@@ -40,6 +40,8 @@ export type Profile = {
 };
 
 export type Settings = {
+  /** app + voice language; null until chosen on the first screen */
+  lang: 'en' | 'te' | null;
   voice: boolean;
   voiceRate: number;
   voiceURI: string | null;

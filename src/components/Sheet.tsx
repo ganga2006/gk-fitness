@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { useEffect, type ReactNode } from 'react';
 import { Icon } from './Icon';
 
@@ -22,7 +23,7 @@ export function Sheet({
         {title && (
           <div className="sheet-head">
             <h3 className="h-section">{title}</h3>
-            <button className="icon-btn" onClick={onClose} aria-label="Close">
+            <button className="icon-btn" onClick={onClose} aria-label={t('Close')}>
               <Icon name="close" size={18} />
             </button>
           </div>

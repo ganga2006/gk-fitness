@@ -5,6 +5,7 @@ import type { AppState, CustomWorkout, Profile, SessionLog, Settings, WeightEntr
 import { buildStats } from '../lib/stats';
 import { coach } from '../lib/voice';
 import { dateKey } from '../lib/date';
+import { setLang } from '../i18n';
 
 const KEY = 'gkfitness.v1';
 const VERSION = 1;
@@ -18,11 +19,12 @@ export const DEFAULT_STATE: AppState = {
     heightCm: null,
     age: null,
     goalPerWeek: 4,
-    planStyle: 'focus',
+    planStyle: 'smart',
     onboarded: false,
     createdAt: Date.now(),
   },
   settings: {
+    lang: null,
     voice: true,
     voiceRate: 1,
     voiceURI: null,
@@ -102,7 +104,11 @@ function load(): AppState {
       ...DEFAULT_STATE,
       ...parsed,
       profile: { ...DEFAULT_STATE.profile, ...(parsed.profile ?? {}) },
-      settings: { ...DEFAULT_STATE.settings, ...(parsed.settings ?? {}) },
+      settings: {
+        ...DEFAULT_STATE.settings, ...(parsed.settings ?? {}),
+        // people who set the app up before Telugu existed keep English
+        lang: parsed.settings?.lang ?? (parsed.profile?.onboarded ? 'en' : null),
+      },
       logs: parsed.logs ?? [],
       weights: parsed.weights ?? [],
       customs: parsed.customs ?? [],
@@ -125,6 +131,9 @@ const StoreCtx = createContext<Ctx | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined as unknown as AppState, load);
+  // set before this render so every screen reads the right language at once
+  setLang(state.settings.lang ?? 'en');
+  coach.lang = state.settings.lang ?? 'en';
 
   // Persist on every change.
   useEffect(() => {

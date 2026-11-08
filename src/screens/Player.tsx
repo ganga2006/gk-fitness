@@ -11,6 +11,7 @@ import type { Step } from '../lib/session';
 import { coach, wake } from '../lib/voice';
 import { useStore } from '../state/store';
 import type { LoggedExercise } from '../lib/types';
+import { t } from '../i18n';
 
 export type PlayerResult = {
   activeSeconds: number;
@@ -72,18 +73,18 @@ export function Player({
 
     if (step.kind === 'rest') {
       setValue(step.seconds);
-      const nextName = step.nextExId ? ex(step.nextExId).name : undefined;
+      const nextName = step.nextExId ? t(ex(step.nextExId).name) : undefined;
       coach.rest(step.seconds, nextName);
-      setCue(nextName ? `Next up: ${nextName}` : 'Rest');
+      setCue(nextName ? t('Next up: {name}', { name: nextName }) : t('Rest'));
     } else {
       const e = ex(step.exId);
       setValue(step.mode === 'time' ? step.seconds : 0);
       const detail =
         step.mode === 'time'
-          ? `${step.seconds} seconds`
-          : `${step.reps} reps${step.sets > 1 ? `, set ${step.setIdx} of ${step.sets}` : ''}`;
-      coach.announce(e.name, detail);
-      setCue(e.cues[0] ?? '');
+          ? t('{n} seconds', { n: step.seconds })
+          : t('{n} reps', { n: step.reps }) + (step.sets > 1 ? ', ' + t('set {i} of {n}', { i: step.setIdx, n: step.sets }) : '');
+      coach.announce(t(e.name), detail);
+      setCue(t(e.cues[0] ?? ''));
     }
   }, [idx]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -160,7 +161,7 @@ export function Player({
             if (next <= half && !spokenAt.current.has(-1)) {
               spokenAt.current.add(-1);
               const e = ex(step.exId);
-              const c = e.cues[1] ?? e.cues[0];
+              const c = t(e.cues[1] ?? e.cues[0]);
               setCue(c);
               coach.cue(c);
             }
@@ -176,12 +177,12 @@ export function Player({
           const est = (step as any).seconds as number;
           if (next > est * 1.5 && !spokenAt.current.has(-2)) {
             spokenAt.current.add(-2);
-            coach.cue('Take your time, keep the form clean.');
+            coach.cue(t('Take your time, keep the form clean.'));
           }
           if (next > est * 0.5 && !spokenAt.current.has(-1)) {
             spokenAt.current.add(-1);
             const e = ex((step as any).exId);
-            const c = e.cues[1] ?? e.cues[0];
+            const c = t(e.cues[1] ?? e.cues[0]);
             setCue(c);
             coach.cue(c);
           }
@@ -198,9 +199,9 @@ export function Player({
     const prev = steps[idx - 1];
     if (!prev || prev.kind !== 'work') return;
     const e = ex(prev.exId);
-    const tip = e.tips[Math.floor(Math.random() * e.tips.length)];
-    const t = window.setTimeout(() => coach.cue(`Tip. ${tip}`), 2600);
-    return () => window.clearTimeout(t);
+    const tip = t(e.tips[Math.floor(Math.random() * e.tips.length)]);
+    const h = window.setTimeout(() => coach.cue(t('Tip. {tip}', { tip })), 2600);
+    return () => window.clearTimeout(h);
   }, [idx, step, steps, settings.spokenCues]);
 
   if (!step) return null;
@@ -217,8 +218,8 @@ export function Player({
 
   const togglePause = () => {
     setRunning((r) => {
-      if (r) { coach.stop(); coach.speak('Paused', { interrupt: true }); }
-      else coach.speak('Resuming', { interrupt: true });
+      if (r) { coach.stop(); coach.speak(t('Paused'), { interrupt: true }); }
+      else coach.speak(t('Resuming'), { interrupt: true });
       return !r;
     });
   };
@@ -226,7 +227,7 @@ export function Player({
   return (
     <div className={`player${isRest ? ' resting' : ''}`}>
       <div className="player-top">
-        <button className="icon-btn" onClick={() => { setRunning(false); setConfirmExit(true); }} aria-label="End workout">
+        <button className="icon-btn" onClick={() => { setRunning(false); setConfirmExit(true); }} aria-label={t('End workout')}>
           <Icon name="close" size={18} />
         </button>
         <div className="prog-track">
@@ -238,14 +239,14 @@ export function Player({
       </div>
 
       <div style={{ textAlign: 'center', paddingTop: 10 }}>
-        <div className="eyebrow">{isRest ? 'Recover' : step.blockName}</div>
+        <div className="eyebrow">{isRest ? t('Recover') : t(step.blockName)}</div>
       </div>
 
       <div className={`player-stage${isRest ? ' rest' : ''}`}>
         {isRest ? (
           <>
             <Ring progress={progress} size={200} stroke={9} color="var(--aqua)">
-              <div className="eyebrow" style={{ color: 'var(--aqua)' }}>Rest</div>
+              <div className="eyebrow" style={{ color: 'var(--aqua)' }}>{t('Rest')}</div>
               <div className={`big-timer${urgent ? ' urgent' : ''}`} style={{ fontSize: 50 }}>
                 {fmtClock(value)}
               </div>
@@ -256,8 +257,8 @@ export function Player({
                   <Thumb exId={step.nextExId} />
                 </div>
                 <div style={{ textAlign: 'left' }}>
-                  <div className="eyebrow">Next up</div>
-                  <div style={{ fontWeight: 750, fontSize: 16 }}>{ex(step.nextExId).name}</div>
+                  <div className="eyebrow">{t('Next up')}</div>
+                  <div style={{ fontWeight: 750, fontSize: 16 }}>{t(ex(step.nextExId).name)}</div>
                 </div>
               </div>
             )}
@@ -271,15 +272,15 @@ export function Player({
                 highlight={partsOf(exercise!)}
               />
             </div>
-            <div className="stage-name">{exercise!.name}</div>
+            <div className="stage-name">{t(exercise!.name)}</div>
             <div className="stage-dose">
               {step.mode === 'reps'
-                ? `${step.reps} reps · set ${step.setIdx} of ${step.sets}`
-                : exercise!.muscles.slice(0, 3).join(' · ')}
+                ? t('{n} reps', { n: step.reps }) + (step.sets > 1 ? ` · ${t('set {i} of {n}', { i: step.setIdx, n: step.sets })}` : ` · ${t('stop 1–2 reps before failure')}`)
+                : exercise!.muscles.slice(0, 3).map((m) => t(m)).join(' · ')}
             </div>
             <div className="target-row">
               {partsOf(exercise!).slice(0, 4).map((p) => (
-                <span key={p} className="target-chip">{PART_LABEL[p]}</span>
+                <span key={p} className="target-chip">{t(PART_LABEL[p])}</span>
               ))}
             </div>
 
@@ -296,7 +297,7 @@ export function Player({
             </div>
             {!countsDown && (
               <div style={{ fontSize: 12, color: 'var(--txt-3)', fontWeight: 600 }}>
-                counting up — tap done when the set is finished
+                {t('counting up — tap done when the set is finished')}
               </div>
             )}
             <div className="cue-line">{cue}</div>
@@ -305,21 +306,21 @@ export function Player({
       </div>
 
       <div className="player-controls">
-        <button className="ctrl" onClick={() => { coach.stop(); setIdx(Math.max(0, idx - 1)); }} aria-label="Previous">
+        <button className="ctrl" onClick={() => { coach.stop(); setIdx(Math.max(0, idx - 1)); }} aria-label={t('Previous')}>
           <Icon name="prev" size={20} />
         </button>
 
         {countsDown ? (
-          <button className="ctrl main" onClick={togglePause} aria-label={running ? 'Pause' : 'Resume'}>
+          <button className="ctrl main" onClick={togglePause} aria-label={running ? t('Pause') : t('Resume')}>
             <Icon name={running ? 'pause' : 'play'} size={28} />
           </button>
         ) : (
-          <button className="ctrl main" onClick={() => { coach.stop(); advance(); }} aria-label="Set done">
+          <button className="ctrl main" onClick={() => { coach.stop(); advance(); }} aria-label={t('Set done')}>
             <Icon name="check" size={30} />
           </button>
         )}
 
-        <button className="ctrl" onClick={() => { coach.stop(); advance(true); }} aria-label="Skip">
+        <button className="ctrl" onClick={() => { coach.stop(); advance(true); }} aria-label={t('Skip')}>
           <Icon name="next" size={20} />
         </button>
       </div>
@@ -330,15 +331,15 @@ export function Player({
             className="chip"
             onClick={() => { extra.current += 15; setValue((v) => v + 15); }}
           >
-            <Icon name="plus" size={13} /> 15s
+            <Icon name="plus" size={13} /> {t('{s}s', { s: 15 })}
           </button>
         )}
         {!countsDown && (
           <button className="chip" onClick={togglePause}>
-            <Icon name={running ? 'pause' : 'play'} size={13} /> {running ? 'Pause' : 'Resume'}
+            <Icon name={running ? 'pause' : 'play'} size={13} /> {running ? t('Pause') : t('Resume')}
           </button>
         )}
-        <span>{title}</span>
+        <span>{t(title)}</span>
       </div>
 
       {confirmExit && (
@@ -346,19 +347,18 @@ export function Player({
           <div className="sheet" onClick={(e) => e.stopPropagation()}>
             <div className="sheet-grab" />
             <div className="sheet-body" style={{ paddingTop: 10 }}>
-              <h3 className="h-section">End this workout?</h3>
+              <h3 className="h-section">{t('End this workout?')}</h3>
               <p style={{ color: 'var(--txt-2)', fontSize: 13.5, marginTop: 8, lineHeight: 1.5 }}>
-                You are {Math.round(overall * 100)}% through. Finishing now still saves what
-                you have done so far.
+                {t('You are {p}% through. Finishing now still saves what you have done so far.', { p: Math.round(overall * 100) })}
               </p>
               <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
                 <button className="btn btn-ghost" style={{ flex: 1 }}
                         onClick={() => { setConfirmExit(false); setRunning(true); }}>
-                  Keep going
+                  {t('Keep going')}
                 </button>
                 <button className="btn btn-primary" style={{ flex: 1 }}
                         onClick={() => (completedSteps.current > 0 ? finish() : onAbort())}>
-                  {completedSteps.current > 0 ? 'Save & end' : 'Discard'}
+                  {completedSteps.current > 0 ? t('Save & end') : t('Discard')}
                 </button>
               </div>
             </div>

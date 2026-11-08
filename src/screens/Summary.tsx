@@ -5,6 +5,7 @@ import { fmtDuration } from '../lib/date';
 import { useStore } from '../state/store';
 import { evaluate } from '../data/achievements';
 import { Thumb } from '../anim/Thumb';
+import { t, tn } from '../i18n';
 
 export function Summary({ logId, onClose }: { logId: string; onClose: () => void }) {
   const { state, stats, dispatch } = useStore();
@@ -30,7 +31,7 @@ export function Summary({ logId, onClose }: { logId: string; onClose: () => void
     <div className="scroll-area">
       <div className="topbar">
         <div className="grow" />
-        <button className="icon-btn" onClick={onClose} aria-label="Close">
+        <button className="icon-btn" onClick={onClose} aria-label={t('Close')}>
           <Icon name="close" size={18} />
         </button>
       </div>
@@ -44,34 +45,34 @@ export function Summary({ logId, onClose }: { logId: string; onClose: () => void
           }}>
             <Icon name="check" size={36} strokeWidth={2.6} />
           </div>
-          <div className="eyebrow" style={{ color: 'var(--volt)' }}>Workout complete</div>
-          <h1 className="h-display" style={{ marginTop: 6 }}>{log.title}</h1>
+          <div className="eyebrow" style={{ color: 'var(--volt)' }}>{t('Workout complete')}</div>
+          <h1 className="h-display" style={{ marginTop: 6 }}>{t(log.title)}</h1>
         </div>
 
         <div className="stat-grid" style={{ marginTop: 24 }}>
           <div className="stat-tile">
             <span className="stat-val num" style={{ color: 'var(--volt)' }}>{Math.round(log.calories)}</span>
-            <span className="stat-lab">Kcal burned</span>
+            <span className="stat-lab">{t('Kcal burned')}</span>
           </div>
           <div className="stat-tile">
             <span className="stat-val num" style={{ color: 'var(--aqua)' }}>
               {Math.round(log.activeSeconds / 60)}
             </span>
-            <span className="stat-lab">Minutes</span>
+            <span className="stat-lab">{t('Minutes')}</span>
           </div>
           <div className="stat-tile">
             <span className="stat-val num" style={{ color: 'var(--ember)' }}>{pct}%</span>
-            <span className="stat-lab">Completed</span>
+            <span className="stat-lab">{t('Completed')}</span>
           </div>
         </div>
 
         {/* ── effort rating drives adaptive difficulty ── */}
         <div className="block-head">
-          <h3 className="h-section">How did that feel?</h3>
+          <h3 className="h-section">{t('How did that feel?')}</h3>
           <div className="line" />
         </div>
         <p style={{ fontSize: 12.5, color: 'var(--txt-3)', marginTop: -4, marginBottom: 12 }}>
-          Rate three sessions the same way and the app will suggest changing your level.
+          {t('Rate three sessions the same way and the app will suggest changing your level.')}
         </p>
         <div className="seg">
           {([[1, 'Too easy'], [2, 'Just right'], [3, 'Too hard']] as const).map(([v, label]) => (
@@ -80,7 +81,7 @@ export function Summary({ logId, onClose }: { logId: string; onClose: () => void
               className={rated === v ? 'on' : ''}
               onClick={() => { setRated(v); dispatch({ type: 'rateLog', id: log.id, effort: v }); }}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
@@ -89,15 +90,15 @@ export function Summary({ logId, onClose }: { logId: string; onClose: () => void
         {freshlyUnlocked.length > 0 && (
           <>
             <div className="block-head">
-              <h3 className="h-section">Unlocked</h3>
+              <h3 className="h-section">{t('Unlocked')}</h3>
               <div className="line" />
             </div>
             <div className="ach-grid">
               {freshlyUnlocked.map((a) => (
                 <div key={a.id} className={`ach ${a.tier} pop-in`}>
                   <div className="ach-ic"><Icon name={a.icon} size={19} /></div>
-                  <div className="ach-n">{a.name}</div>
-                  <div className="ach-d">{a.desc}</div>
+                  <div className="ach-n">{t(a.name)}</div>
+                  <div className="ach-d">{t(a.desc)}</div>
                 </div>
               ))}
             </div>
@@ -106,7 +107,7 @@ export function Summary({ logId, onClose }: { logId: string; onClose: () => void
 
         {/* ── per-exercise breakdown ── */}
         <div className="block-head">
-          <h3 className="h-section">Breakdown</h3>
+          <h3 className="h-section">{t('Breakdown')}</h3>
           <div className="line" />
         </div>
         {log.exercises
@@ -121,18 +122,18 @@ export function Summary({ logId, onClose }: { logId: string; onClose: () => void
                   <Thumb exId={e.id} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="ex-name">{e.name}</div>
+                  <div className="ex-name">{t(e.name)}</div>
                   <div className="ex-sub">
-                    {fmtDuration(le.seconds)}{le.setsDone ? ` · ${le.setsDone} set${le.setsDone > 1 ? 's' : ''}` : ''}
+                    {fmtDuration(le.seconds)}{le.setsDone ? ` · ${tn(le.setsDone, '{n} set', '{n} sets')}` : ''}
                   </div>
                 </div>
-                <span className="ex-dose num">{Math.round(le.calories)} kcal</span>
+                <span className="ex-dose num">{Math.round(le.calories)} {t('kcal')}</span>
               </div>
             );
           })}
 
         <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} onClick={onClose}>
-          Done
+          {t('Done')}
         </button>
         <div style={{ height: 24 }} />
       </div>
